@@ -1,0 +1,57 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: test-mongo-write
+  labels:
+    app: test-mongo-write
+spec:
+  template:
+    metadata:
+      labels:
+        app: test-mongo-write
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: test-mongo-write
+        image: mongo:4.0.5
+        command:
+        - "/bin/bash"
+        - "/test-write.sh"
+        volumeMounts:
+        - name: test-write
+          mountPath: /test-write.sh
+          subPath: test-write.sh
+      volumes:
+      - name: test-write
+        configMap:
+          name: test-write
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: test-mongo-read
+  labels:
+    app: test-mongo-read
+spec:
+  completions: 3
+  parallelism: 3
+  template:
+    metadata:
+      labels:
+        app: test-mongo-read
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: test-mongo-read
+        image: mongo:4.0.5
+        command:
+        - "/bin/bash"
+        - "/test-read.sh"
+        volumeMounts:
+        - name: test-read
+          mountPath: /test-read.sh
+          subPath: test-read.sh
+      volumes:
+      - name: test-read
+        configMap:
+          name: test-read

@@ -1,0 +1,138 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: mongo
+  labels:
+    app: mongo
+spec:
+  clusterIP: None
+  selector:
+    app: mongo
+  ports:
+  - name: mongo
+    protocol: TCP
+    port: 27017
+    targetPort: mongo
+  - name: metrics
+    protocol: TCP
+    port: 9126
+    targetPort: metrics
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongo
+  labels:
+    app: mongo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo
+  serviceName: "mongo"
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      automountServiceAccountToken: false
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: run
+                      operator: In
+                      values:
+                      - mongo
+                topologyKey: kubernetes.io/hostname
+      terminationGracePeriodSeconds: 90
+      containers:
+      - name: mongo-peer-finder
+        image: quay.io/sighup/mongo-peer-finder:4.0.5
+        imagePullPolicy: Always
+        command: ["/usr/bin/peer-finder"]
+        args:
+        - "-on-change=/on-change.sh"
+        - "-service=mongo"
+        env:
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        - name: REPLICA_SET
+          value: "rs0"
+        - name: TIMEOUT
+          value: "60"
+        volumeMounts:
+        - name: on-change
+          mountPath: /on-change.sh
+          subPath: on-change.sh
+      - name: mongodb-exporter
+        image: quay.io/sighup/mongodb_exporter:v0.6.2
+        imagePullPolicy: Always
+        env:
+        - name: MONGODB_URI
+          value: "mongodb://localhost:27017"
+        ports:
+        - name: metrics
+          containerPort: 9216
+      - name: mongo
+        image: mongo:4.0.5
+        imagePullPolicy: Always
+        args: ["--replSet", "$(REPLICA_SET)"]
+        env:
+        - name: TZ
+          value: "Etc/UTC"
+        - name: REPLICA_SET
+          value: rs0
+        ports:
+        - name: mongo
+          containerPort: 27017
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/usr/bin/mongo", "--eval", "db.shutdownServer({timeoutSecs: 60})"]
+        livenessProbe:
+          exec:
+            command:
+            - "mongo"
+            - "--eval"
+            - "db.adminCommand('ping')"
+          timeoutSeconds: 5
+        readinessProbe:
+          exec:
+            command:
+            - "mongo"
+            - "--eval"
+            - "db.adminCommand('ping')"
+          timeoutSeconds: 5
+        resources:
+          requests:
+            memory: 512Mi
+            cpu: 500m
+          limits:
+            memory: 2Gi
+            cpu: 1000m
+        volumeMounts:
+        - name: mongo
+          mountPath: /data/db
+      volumes:
+      - name: on-change
+        configMap:
+          name: mongo-peer-finder
+          items:
+          - key: on-change.sh
+            path: on-change.sh
+            mode: 0755
+  volumeClaimTemplates:
+  - metadata:
+      name: mongo
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 20Gi

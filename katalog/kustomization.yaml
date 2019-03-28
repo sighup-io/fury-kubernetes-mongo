@@ -1,0 +1,20 @@
+namespace: mongo
+
+resources:
+- backup.yml
+- deploy.yml
+# - test.yml
+- ns.yml
+- rules.yml
+- sm.yml
+
+configMapGenerator:
+- name: mongo-peer-finder
+  files:
+  - on-change.sh
+# - name: test-write
+#   files:
+#   - test-write.sh
+# - name: test-read
+#   files:
+#   - test-read.sh

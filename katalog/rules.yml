@@ -1,0 +1,21 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    prometheus: k8s
+    role: alert-rules
+  name: mongo-k8s-rules
+spec:
+  groups:
+  - name: mongo.rules
+    rules:
+    - alert: MongoDBMissingPrimary
+      annotations:
+        message: 'Replica set {{ $labels.set }} is missing primary.'
+        doc: "This alert fires if MongoDB replica set primary was missing for at
+          least 5 minutes."
+      expr: |
+        avg by (set) (mongodb_mongod_replset_member_health{state = "PRIMARY"}) != 1
+      for: 5m
+      labels:
+        severity: critical

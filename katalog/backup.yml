@@ -1,0 +1,42 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: mongo-backup
+spec:
+  schedule: "0 23 * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: mongo-backup
+              image: mongo:4.0.5
+              imagePullPolicy: Always
+              command: ["/bin/bash"]
+              args:
+              - "-c"
+              - "mongodump --uri=${MONGO_URI} --gzip --archive=/backup/mongodump.tar.gz"
+              env:
+              - name: MONGO_URI
+                value: "mongodb://mongo-0.mongo:27017,mongo-1.mongo:27017,mongo-2.mongo:27017/test?replicaSet=rs0"
+              volumeMounts:
+                - name: backup
+                  mountPath: /backup
+          volumes:
+          - name: backup
+            persistentVolumeClaim:
+              claimName: mongo-backup
+          restartPolicy: Never
+      backoffLimit: 4
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: mongo-backup
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
