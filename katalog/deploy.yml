@@ -9,10 +9,10 @@ spec:
   selector:
     app: mongo
   ports:
-  - name: mongo
+  - name: mongodb
     protocol: TCP
     port: 27017
-    targetPort: mongo
+    targetPort: mongodb
   - name: metrics
     protocol: TCP
     port: 9126
@@ -90,7 +90,7 @@ spec:
         - name: REPLICA_SET
           value: rs0
         ports:
-        - name: mongo
+        - name: mongodb
           containerPort: 27017
         lifecycle:
           preStop:
