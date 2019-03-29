@@ -49,16 +49,9 @@ spec:
         env:
         - name: ME_CONFIG_MONGODB_URL
           value: "mongodb+srv://mongo.mongo.svc.cluster.local/?replicaSet=rs0&ssl=false"
-        - name: ME_CONFIG_BASICAUTH_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: mongo-express-credentials
-              key: username
-        - name: ME_CONFIG_BASICAUTH_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: mongo-express-credentials
-              key: password
+        envFrom:
+        - secretRef:
+            name: mongo-express-credentials
         resources:
           requests:
             cpu: 100m

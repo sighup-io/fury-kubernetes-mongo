@@ -5,6 +5,4 @@ resources:
 
 #secretGenerator:
 #  - name: mongo-express-credentials
-#    commands:
-#      username: "/bin/echo -n admin"
-#      password: "/bin/echo -n pass"
+#    envCommand: "cat mongo-express.env"
