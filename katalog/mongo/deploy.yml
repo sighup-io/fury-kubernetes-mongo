@@ -43,7 +43,7 @@ spec:
               podAffinityTerm:
                 labelSelector:
                   matchExpressions:
-                    - key: run
+                    - key: app
                       operator: In
                       values:
                       - mongo
