@@ -56,7 +56,7 @@ spec:
         command: ["/usr/bin/peer-finder"]
         args:
         - "-on-change=/on-change.sh"
-        - "-service=mongo"
+        - "-service=$(MONGO_SVC_NAME)"
         env:
         - name: POD_NAMESPACE
           valueFrom:

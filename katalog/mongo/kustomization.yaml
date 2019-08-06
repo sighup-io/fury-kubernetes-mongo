@@ -18,3 +18,12 @@ configMapGenerator:
 # - name: test-read
 #   files:
 #   - test-read.sh
+
+vars:
+  - name: MONGO_SVC_NAME
+    objref:
+      kind: Service
+      name: mongo
+      apiVersion: v1
+    fieldref:
+      fieldpath: metadata.name
