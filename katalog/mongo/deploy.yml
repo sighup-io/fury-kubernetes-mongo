@@ -51,7 +51,7 @@ spec:
       terminationGracePeriodSeconds: 90
       containers:
       - name: mongo-peer-finder
-        image: quay.io/sighup/mongo-peer-finder:4.0.5
+        image: quay.io/sighup/mongo-peer-finder:4.0.5_v2
         imagePullPolicy: Always
         command: ["/usr/bin/peer-finder"]
         args:
