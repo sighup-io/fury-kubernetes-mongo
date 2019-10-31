@@ -17,8 +17,8 @@ Following packages are included in Fury Kubernetes MongoDB katalog. All
 resources in these packages are going to be deployed in `mongo` namespace in
 your Kubernetes cluster.
 
-- [mongo](katalog/mongo): MongoDB NoSQL database 
-- [mongo-express](katalog/mongo-express): Web-based admin interface for Mongo
+- [mongo](katalog/mongo): MongoDB NoSQL database. Version: **4.0.5**
+- [mongo-express](katalog/mongo-express): Web-based admin interface for MongoDB. Version **0.49**
 
 
 ## License
