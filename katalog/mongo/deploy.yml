@@ -51,7 +51,7 @@ spec:
       terminationGracePeriodSeconds: 90
       containers:
       - name: mongo-peer-finder
-        image: quay.io/sighup/mongo-peer-finder:4.0.5_v3
+        image: quay.io/sighup/mongo-peer-finder:4.2.2_v3
         imagePullPolicy: Always
         command: ["/usr/bin/peer-finder"]
         args:
@@ -81,7 +81,7 @@ spec:
         - name: metrics
           containerPort: 9216
       - name: mongo
-        image: mongo:4.0.5
+        image: mongo:4.2.2
         imagePullPolicy: Always
         args: ["--replSet", "$(REPLICA_SET)"]
         env:
@@ -89,6 +89,16 @@ spec:
           value: "Etc/UTC"
         - name: REPLICA_SET
           value: rs0
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mongodb_credentials
+              key: username
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mongodb_credentials
+              key: password
         ports:
         - name: mongodb
           containerPort: 27017
