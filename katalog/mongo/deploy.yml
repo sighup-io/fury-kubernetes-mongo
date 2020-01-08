@@ -77,6 +77,16 @@ spec:
         env:
         - name: MONGODB_URI
           value: "mongodb://localhost:27017"
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-credentials
+              key: username
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-credentials
+              key: password
         ports:
         - name: metrics
           containerPort: 9216
@@ -92,12 +102,12 @@ spec:
         - name: MONGO_INITDB_ROOT_USERNAME
           valueFrom:
             secretKeyRef:
-              name: mongodb_credentials
+              name: mongodb-credentials
               key: username
         - name: MONGO_INITDB_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: mongodb_credentials
+              name: mongodb-credentials
               key: password
         ports:
         - name: mongodb

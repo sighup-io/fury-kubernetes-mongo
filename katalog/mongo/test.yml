@@ -13,7 +13,7 @@ spec:
       restartPolicy: Never
       containers:
       - name: test-mongo-write
-        image: mongo:4.0.5
+        image: mongo:4.2.2
         command:
         - "/bin/bash"
         - "/test-write.sh"
@@ -43,7 +43,7 @@ spec:
       restartPolicy: Never
       containers:
       - name: test-mongo-read
-        image: mongo:4.0.5
+        image: mongo:4.2.2
         command:
         - "/bin/bash"
         - "/test-read.sh"

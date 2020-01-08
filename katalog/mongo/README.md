@@ -22,7 +22,7 @@ Fury distribution Mongo is deployed with following configuration:
 - Resource limits are `1000m` for CPU and `2Gi` for memory
 - Listens on port `27017` for db and on port `9126` for metrics
 - In case of multi-node cluster automatic peer discovery and primary election
-- You must specify the username and password for the root user creating a secret `mongodb_credentials` with the following keys:
+- You must specify the username and password for the root user creating a secret `mongodb-credentials` with the following keys:
   - `username`
   - `password`
 
