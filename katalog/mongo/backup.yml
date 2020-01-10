@@ -16,10 +16,20 @@ spec:
               command: ["/bin/bash"]
               args:
               - "-c"
-              - "mongodump --uri=${MONGO_URI} --gzip --archive=/backup/mongodump.tar.gz"
+              - mongodump --uri=${MONGO_URI} --gzip --archive=/backup/mongodump.tar.gz
               env:
+              - name: MONGO_INITDB_ROOT_USERNAME
+                valueFrom:
+                  secretKeyRef:
+                    name: mongodb-credentials
+                    key: username
+              - name: MONGO_INITDB_ROOT_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: mongodb-credentials
+                    key: password
               - name: MONGO_URI
-                value: "mongodb://mongo-0.mongo:27017,mongo-1.mongo:27017,mongo-2.mongo:27017/test?replicaSet=rs0"
+                value: "mongodb://$(MONGO_INITDB_ROOT_USERNAME):$(MONGO_INITDB_ROOT_PASSWORD)@mongo-0.mongo:27017,mongo-1.mongo:27017,mongo-2.mongo:27017/?replicaSet=rs0"
               volumeMounts:
                 - name: backup
                   mountPath: /backup

@@ -21,6 +21,17 @@ spec:
         - name: test-write
           mountPath: /test-write.sh
           subPath: test-write.sh
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-credentials
+              key: username
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-credentials
+              key: password
       volumes:
       - name: test-write
         configMap:
@@ -47,6 +58,17 @@ spec:
         command:
         - "/bin/bash"
         - "/test-read.sh"
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-credentials
+              key: username
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-credentials
+              key: password
         volumeMounts:
         - name: test-read
           mountPath: /test-read.sh

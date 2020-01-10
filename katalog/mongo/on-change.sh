@@ -36,7 +36,7 @@ retry_until() {
   local expected="${3}"
   local seconds=0
 
-  until [[ $(mongo --host "${host}" --quiet --eval "${cmd}") == "${expected}" ]]; do
+  until [[ $(mongo --host "${host}" --quiet -u "${MONGO_INITDB_ROOT_USERNAME}" -p "${MONGO_INITDB_ROOT_PASSWORD}" --authenticationDatabase admin --eval "${cmd}") == "${expected}" ]]; do
     sleep 1
     seconds=$((seconds + 1))
 
@@ -74,7 +74,7 @@ retry_until "localhost" "db.adminCommand('ping').ok" "1"
 for peer in "${PEERS[@]}"; do
   log "Checking if ${peer} is primary"
   # Check rs.status() first since it could be in primary catch up mode which db.isMaster() doesn't show
-  if [[ $(mongo --host "${peer}" --quiet --eval "rs.status().myState") == "1" ]]; then
+  if [[ $(mongo --host "${peer}" --quiet -u "${MONGO_INITDB_ROOT_USERNAME}" -p "${MONGO_INITDB_ROOT_PASSWORD}" --authenticationDatabase admin --eval "rs.status().myState") == "1" ]]; then
     retry_until "${peer}" "db.isMaster().ismaster" "true"
     log "Found primary: ${peer}"
     PRIMARY="${peer}"
@@ -85,9 +85,9 @@ done
 if [[ "${PRIMARY}" == "${SERVICE_NAME}" ]]; then
   log "${SERVICE_NAME} is already PRIMARY"
 elif [[ -n "${PRIMARY}" ]]; then
-  if [[ $(mongo --host "${PRIMARY}" --quiet --eval "rs.conf().members.findIndex(m => m.host == '${SERVICE_NAME}:${PORT}')") == "-1" ]]; then
+  if [[ $(mongo --host "${PRIMARY}" --quiet  -u "${MONGO_INITDB_ROOT_USERNAME}" -p "${MONGO_INITDB_ROOT_PASSWORD}" --authenticationDatabase admin --eval "rs.conf().members.findIndex(m => m.host == '${SERVICE_NAME}:${PORT}')") == "-1" ]]; then
     log "Adding myself (${SERVICE_NAME}) to replica set..."
-    if (mongo --host "${PRIMARY}" --eval "rs.add('${SERVICE_NAME}')" | grep 'Quorum check failed'); then
+    if (mongo --host "${PRIMARY}" -u "${MONGO_INITDB_ROOT_USERNAME}" -p "${MONGO_INITDB_ROOT_PASSWORD}" --authenticationDatabase admin --eval "rs.add('${SERVICE_NAME}')" | grep 'Quorum check failed'); then
       log "Quorum check failed, unable to join replica set. Exiting prematurely."
       exit 1
     fi
@@ -98,9 +98,9 @@ elif [[ -n "${PRIMARY}" ]]; then
     retry_until "${SERVICE_NAME}" "rs.status().myState" "2"
     log '✓ Replica reached SECONDARY state.'
   fi
-elif (mongo --quiet --eval "rs.status()" | grep -q "no replset config has been received"); then
+elif (mongo --quiet -u "${MONGO_INITDB_ROOT_USERNAME}" -p "${MONGO_INITDB_ROOT_PASSWORD}" --authenticationDatabase admin --eval "rs.status()" | grep -q "no replset config has been received"); then
   log "Initiating a new replica set with myself ($SERVICE_NAME)..."
-  mongo --eval "rs.initiate({'_id': '${REPLICA_SET}', 'members': [{'_id': 0, 'host': '${SERVICE_NAME}'}]})"
+  mongo -u "${MONGO_INITDB_ROOT_USERNAME}" -p "${MONGO_INITDB_ROOT_PASSWORD}" --authenticationDatabase admin --eval "rs.initiate({'_id': '${REPLICA_SET}', 'members': [{'_id': 0, 'host': '${SERVICE_NAME}'}]})"
 
   sleep 3
 
