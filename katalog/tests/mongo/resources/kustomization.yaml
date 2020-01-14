@@ -1,0 +1,12 @@
+namespace: mongo
+
+resources:
+- test.yml
+
+configMapGenerator:
+- name: test-write
+  files:
+  - test-write.sh
+- name: test-read
+  files:
+  - test-read.sh
