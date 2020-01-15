@@ -3,7 +3,7 @@
 load ./../helper
 
 
-@test "Deploy Tests" {
+@test "Deploy Read/Write Tests" {
     info
     deploy() {
         apply katalog/tests/mongo/resources
@@ -12,7 +12,7 @@ load ./../helper
     [ "$status" -eq 0 ]
 }
 
-@test "Tests" {
+@test "Tests Read/Write" {
     info
     test() {
         kubectl -n mongo wait --for=condition=complete job --all --timeout=300s
@@ -21,7 +21,7 @@ load ./../helper
     [ "$status" -eq 0 ]
 }
 
-@test "Delete Tests" {
+@test "Delete Read/Write Tests" {
     info
     deploy() {
         delete katalog/tests/mongo/resources

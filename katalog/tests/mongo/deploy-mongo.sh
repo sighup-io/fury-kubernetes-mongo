@@ -26,13 +26,3 @@ load ./../helper
     status=${loop_it_result}
     [ "$status" -eq 0 ]
 }
-
-
-@test "Deploy Tests" {
-    info
-    deploy() {
-        apply katalog/tests/mongo/resources
-    }
-    run deploy
-    [ "$status" -eq 0 ]
-}
