@@ -16,7 +16,7 @@ spec:
               command: ["/bin/bash"]
               args:
               - "-c"
-              - mongodump --uri=${MONGO_URI} --gzip --archive=/backup/mongodump.tar.gz
+              - mongodump --uri=${MONGO_URI} --gzip --archive=/backup/mongodump.archive.gz
               env:
               - name: MONGO_INITDB_ROOT_USERNAME
                 valueFrom:
