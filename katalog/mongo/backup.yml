@@ -29,7 +29,7 @@ spec:
                     name: mongodb-credentials
                     key: password
               - name: MONGO_URI
-                value: "mongodb://$(MONGO_INITDB_ROOT_USERNAME):$(MONGO_INITDB_ROOT_PASSWORD)@mongo-0.mongo:27017,mongo-1.mongo:27017,mongo-2.mongo:27017/?replicaSet=rs0"
+                value: "mongodb+srv://$(MONGO_INITDB_ROOT_USERNAME):$(MONGO_INITDB_ROOT_PASSWORD)@mongo/?replicaSet=rs0&ssl=false"
               volumeMounts:
                 - name: backup
                   mountPath: /backup
