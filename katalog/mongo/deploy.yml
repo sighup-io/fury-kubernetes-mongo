@@ -15,7 +15,7 @@ spec:
     targetPort: mongodb
   - name: metrics
     protocol: TCP
-    port: 9126
+    port: 9216
     targetPort: metrics
 ---
 apiVersion: apps/v1
