@@ -15,7 +15,7 @@ spec:
     targetPort: mongodb
   - name: metrics
     protocol: TCP
-    port: 9126
+    port: 9216
     targetPort: metrics
 ---
 apiVersion: apps/v1
@@ -49,9 +49,24 @@ spec:
                       - mongo
                 topologyKey: kubernetes.io/hostname
       terminationGracePeriodSeconds: 90
+      initContainers:
+        - name: change-keyfile-owner
+          image: "alpine:3.11.2"
+          command:
+            - "/bin/sh"
+          args:
+            - "-c"
+            - "cp /mongod-keyfile/mongod.key /mongod-keyfile-fixedowner/mongod.key && \
+               chown 999:999 /mongod-keyfile-fixedowner/mongod.key && \
+               chmod 0400 /mongod-keyfile-fixedowner/mongod.key"
+          volumeMounts:
+            - name: mongod-keyfile-fixedowner
+              mountPath: /mongod-keyfile-fixedowner
+            - name: mongod-keyfile
+              mountPath: /mongod-keyfile
       containers:
       - name: mongo-peer-finder
-        image: quay.io/sighup/mongo-peer-finder:4.0.5_v3
+        image: quay.io/sighup/mongo-peer-finder:4.2.2_v3
         imagePullPolicy: Always
         command: ["/usr/bin/peer-finder"]
         args:
@@ -67,6 +82,16 @@ spec:
           value: "rs0"
         - name: TIMEOUT
           value: "60"
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-credentials
+              key: username
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-credentials
+              key: password
         volumeMounts:
         - name: on-change
           mountPath: /on-change.sh
@@ -75,20 +100,40 @@ spec:
         image: quay.io/sighup/mongodb_exporter:v0.6.2
         imagePullPolicy: Always
         env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-credentials
+              key: username
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-credentials
+              key: password
         - name: MONGODB_URI
-          value: "mongodb://localhost:27017"
+          value: "mongodb://$(MONGO_INITDB_ROOT_USERNAME):$(MONGO_INITDB_ROOT_PASSWORD)@localhost:27017"
         ports:
         - name: metrics
           containerPort: 9216
       - name: mongo
-        image: mongo:4.0.5
+        image: mongo:4.2.2
         imagePullPolicy: Always
-        args: ["--replSet", "$(REPLICA_SET)"]
+        args: ["--replSet", "$(REPLICA_SET)", "--keyFile", "mongod.key"]
         env:
         - name: TZ
           value: "Etc/UTC"
         - name: REPLICA_SET
           value: rs0
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-credentials
+              key: username
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-credentials
+              key: password
         ports:
         - name: mongodb
           containerPort: 27017
@@ -120,6 +165,9 @@ spec:
         volumeMounts:
         - name: mongo
           mountPath: /data/db
+        - name: mongod-keyfile-fixedowner
+          mountPath: /mongod.key
+          subPath: mongod.key
       volumes:
       - name: on-change
         configMap:
@@ -128,6 +176,11 @@ spec:
           - key: on-change.sh
             path: on-change.sh
             mode: 0755
+      - name: mongod-keyfile
+        secret:
+          secretName: mongod-keyfile
+      - name: mongod-keyfile-fixedowner
+        emptyDir: {}
   volumeClaimTemplates:
   - metadata:
       name: mongo

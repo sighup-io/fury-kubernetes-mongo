@@ -11,15 +11,25 @@ spec:
         spec:
           containers:
             - name: mongo-backup
-              image: mongo:4.0.5
+              image: mongo:4.2.2
               imagePullPolicy: Always
               command: ["/bin/bash"]
               args:
               - "-c"
-              - "mongodump --uri=${MONGO_URI} --gzip --archive=/backup/mongodump.tar.gz"
+              - mongodump --uri=${MONGO_URI} --gzip --archive=/backup/mongodump.archive.gz
               env:
+              - name: MONGO_INITDB_ROOT_USERNAME
+                valueFrom:
+                  secretKeyRef:
+                    name: mongodb-credentials
+                    key: username
+              - name: MONGO_INITDB_ROOT_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: mongodb-credentials
+                    key: password
               - name: MONGO_URI
-                value: "mongodb://mongo-0.mongo:27017,mongo-1.mongo:27017,mongo-2.mongo:27017/test?replicaSet=rs0"
+                value: "mongodb+srv://$(MONGO_INITDB_ROOT_USERNAME):$(MONGO_INITDB_ROOT_PASSWORD)@mongo/?replicaSet=rs0&ssl=false"
               volumeMounts:
                 - name: backup
                   mountPath: /backup
