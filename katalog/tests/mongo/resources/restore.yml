@@ -1,0 +1,36 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mongo-restore
+spec:
+  template:
+    spec:
+      containers:
+        - name: mongo-backup
+          image: mongo:4.2.2
+          imagePullPolicy: Always
+          command: ["/bin/bash"]
+          args:
+          - "-c"
+          - mongorestore --uri=${MONGO_URI} --gzip --archive=/backup/mongodump.archive.gz
+          env:
+          - name: MONGO_INITDB_ROOT_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: mongodb-credentials
+                key: username
+          - name: MONGO_INITDB_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mongodb-credentials
+                key: password
+          - name: MONGO_URI
+            value: "mongodb+srv://$(MONGO_INITDB_ROOT_USERNAME):$(MONGO_INITDB_ROOT_PASSWORD)@mongo/?replicaSet=rs0&ssl=false"
+          volumeMounts:
+            - name: backup
+              mountPath: /backup
+      volumes:
+      - name: backup
+        persistentVolumeClaim:
+          claimName: mongo-backup
+      restartPolicy: Never

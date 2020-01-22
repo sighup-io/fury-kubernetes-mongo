@@ -42,8 +42,9 @@ steps:
     commands:
       - export KUBECONFIG=/shared/kube/kubeconfig-116
       - bats -t katalog/tests/mongo/deploy-mongo.sh
-      - bats -t katalog/tests/mongo/test-mongo.sh
+      - bats -t katalog/tests/mongo/mongo-read-write.sh
       - bats -t katalog/tests/mongo/deploy-mongo-express.sh
+      - bats -t katalog/tests/mongo/mongo-backup-restore.sh
       - bats -t katalog/tests/mongo/delete-mongo.sh
     when:
       ref:
@@ -119,8 +120,9 @@ steps:
     commands:
       - export KUBECONFIG=/shared/kube/kubeconfig-115
       - bats -t katalog/tests/mongo/deploy-mongo.sh
-      - bats -t katalog/tests/mongo/test-mongo.sh
+      - bats -t katalog/tests/mongo/mongo-read-write.sh
       - bats -t katalog/tests/mongo/deploy-mongo-express.sh
+      - bats -t katalog/tests/mongo/mongo-backup-restore.sh
       - bats -t katalog/tests/mongo/delete-mongo.sh
     when:
       ref:
@@ -196,8 +198,9 @@ steps:
     commands:
       - export KUBECONFIG=/shared/kube/kubeconfig-114
       - bats -t katalog/tests/mongo/deploy-mongo.sh
-      - bats -t katalog/tests/mongo/test-mongo.sh
+      - bats -t katalog/tests/mongo/mongo-read-write.sh
       - bats -t katalog/tests/mongo/deploy-mongo-express.sh
+      - bats -t katalog/tests/mongo/mongo-backup-restore.sh
       - bats -t katalog/tests/mongo/delete-mongo.sh
     when:
       ref:

@@ -1,47 +1,6 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: test-mongo-write
-  labels:
-    app: test-mongo-write
-spec:
-  template:
-    metadata:
-      labels:
-        app: test-mongo-write
-    spec:
-      restartPolicy: Never
-      containers:
-      - name: test-mongo-write
-        image: mongo:4.2.2
-        command:
-        - "/bin/bash"
-        - "/test-write.sh"
-        volumeMounts:
-        - name: test-write
-          mountPath: /test-write.sh
-          subPath: test-write.sh
-        env:
-        - name: DOCUMENTS
-          value: "10"
-        - name: MONGO_INITDB_ROOT_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: mongodb-credentials
-              key: username
-        - name: MONGO_INITDB_ROOT_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: mongodb-credentials
-              key: password
-      volumes:
-      - name: test-write
-        configMap:
-          name: test-write
----
-apiVersion: batch/v1
-kind: Job
-metadata:
   name: test-mongo-read
   labels:
     app: test-mongo-read

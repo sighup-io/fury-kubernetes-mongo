@@ -1,0 +1,29 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mongo-accident
+spec:
+  template:
+    spec:
+      restartPolicy: "Never"
+      containers:
+        - name: mongo-accident
+          image: mongo:4.2.2
+          imagePullPolicy: Always
+          command: ["/bin/bash"]
+          args:
+          - "-c"
+          - 'env && mongo --host="${MONGO_URI}" -u "${MONGO_INITDB_ROOT_USERNAME}" -p "${MONGO_INITDB_ROOT_PASSWORD}" --authenticationDatabase admin --quiet --eval="db.test.remove({\"key\": \"value\"})"'
+          env:
+          - name: MONGO_INITDB_ROOT_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: mongodb-credentials
+                key: username
+          - name: MONGO_INITDB_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mongodb-credentials
+                key: password
+          - name: MONGO_URI
+            value: "mongodb://mongo-0.mongo:27017,mongo-1.mongo:27017,mongo-2.mongo:27017/?replicaSet=rs0"
