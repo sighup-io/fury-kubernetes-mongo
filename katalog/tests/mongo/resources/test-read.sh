@@ -3,7 +3,7 @@
 set -u
 set -o pipefail
 
-MONGO_URI="mongodb://mongo-0.mongo:27017,mongo-1.mongo:27017,mongo-2.mongo:27017/?replicaSet=rs0"
+MONGO_URI="mongodb+srv://mongo.mongo.svc.cluster.local/?replicaSet=rs0&ssl=false"
 
 count=0
 echo $count
