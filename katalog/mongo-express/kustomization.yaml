@@ -2,3 +2,4 @@ namespace: mongo
 
 resources:
   - deploy.yml
+  - config/

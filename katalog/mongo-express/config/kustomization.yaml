@@ -1,8 +1,5 @@
 namespace: mongo
 
-generatorOptions:
- disableNameSuffixHash: true
-
 secretGenerator:
  - name: mongo-express-credentials
    envs:

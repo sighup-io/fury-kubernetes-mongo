@@ -2,16 +2,6 @@
 
 load ./../helper
 
-@test "Deploy mongo express configuration" {
-    info
-    deploy() {
-        apply katalog/mongo-express/config
-    }
-    run deploy
-    [ "$status" -eq 0 ]
-}
-
-
 @test "Deploy mongo express" {
     info
     deploy() {
