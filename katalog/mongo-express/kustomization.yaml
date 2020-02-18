@@ -1,8 +1,5 @@
 namespace: mongo
 
 resources:
-- deploy.yml
-
-#secretGenerator:
-#  - name: mongo-express-credentials
-#    envCommand: "cat mongo-express.env"
+  - deploy.yml
+  - config/

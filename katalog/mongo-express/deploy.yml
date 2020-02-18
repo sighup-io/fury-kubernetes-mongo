@@ -47,8 +47,20 @@ spec:
         image: mongo-express:0.49
         imagePullPolicy: Always
         env:
-        - name: ME_CONFIG_MONGODB_URL
-          value: "mongodb+srv://mongo.mongo.svc.cluster.local/?replicaSet=rs0&ssl=false"
+          - name: ME_CONFIG_MONGODB_ENABLE_ADMIN
+            value: "true"
+          - name: ME_CONFIG_MONGODB_AUTH_DATABASE
+            value: admin
+          - name: ME_CONFIG_MONGODB_ADMINUSERNAME
+            valueFrom:
+              secretKeyRef:
+                name: mongodb-credentials
+                key: username
+          - name: ME_CONFIG_MONGODB_ADMINPASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mongodb-credentials
+                key: password
         envFrom:
         - secretRef:
             name: mongo-express-credentials

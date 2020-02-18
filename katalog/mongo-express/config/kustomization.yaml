@@ -1,0 +1,6 @@
+namespace: mongo
+
+secretGenerator:
+ - name: mongo-express-credentials
+   envs:
+    - "mongo-express.env"
